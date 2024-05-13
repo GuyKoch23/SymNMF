@@ -253,6 +253,44 @@ double** ddg(double** A, int N, int d){
     return D;
 }
 
+double** diag_pow_minus_half(double** mat, int N){
+    double** min_half_diag = (double**)calloc(N,sizeof(double*));
+    if(min_half_diag == NULL){
+        return NULL;
+    }
+    for(int i = 0; i < N; i++){
+        min_half_diag[i] = (double*)calloc(N,sizeof(double));
+        if(min_half_diag[i] == NULL){
+            return NULL;
+        }
+        min_half_diag[i][i] = pow(mat[i][i], -0.5);
+    }
+    return min_half_diag;
+}
+
+double** norm(double** A, double** D, int N, int d){
+    double** D_min_half = diag_pow_minus_half(D, N);
+    double** W = (double**)calloc(N,sizeof(double*));
+    if(W == NULL){
+        return NULL;
+    }
+    for(int i = 0; i < N; i++){
+        W[i] = (double*)calloc(N,sizeof(double));
+        if(W[i] == NULL){
+            return NULL;
+        }
+        for(int j = 0; j < N; j++){
+            W[i][j] = D_min_half[i][i]*A[i][j];
+        }
+    }
+    for(int i = 0; i < N; i++){
+        for(int j = 0; j < N; j++){
+            W[i][j] = W[i][j]*D_min_half[j][j];
+        }
+    }
+    return W;
+}
+
 
 int main(int argc, char* argv[]){
     char *goal = (char*)NULL;
@@ -276,5 +314,6 @@ int main(int argc, char* argv[]){
     }
     double** A = sym(X, 5, 3);
     double** D = ddg(A, 5, 3);
-    print_output(D, 5, 5);
+    double** W = norm(A, D, 5, 3);
+    print_output(W, 5, 5);
 }
