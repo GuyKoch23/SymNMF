@@ -232,7 +232,26 @@ double** sym(double** X, int N, int d){
     return A;
 }
 
-
+double** ddg(double** A, int N, int d){
+    double** D = NULL;
+    double current_sum = 0;
+    D = (double**)calloc(N,sizeof(double*));
+    if(D == NULL){
+        return NULL;
+    }
+    for(int i = 0; i < N; i++){
+        D[i] = (double*)calloc(N,sizeof(double));
+        if(D[i] == NULL){
+            return NULL;
+        }
+        current_sum = 0;
+        for(int j = 0; j <N; j++){
+            current_sum += A[i][j];
+        }
+        D[i][i] = current_sum;
+    }
+    return D;
+}
 
 
 int main(int argc, char* argv[]){
@@ -256,5 +275,6 @@ int main(int argc, char* argv[]){
       return 1;
     }
     double** A = sym(X, 5, 3);
-    print_output(A, 5, 5);
+    double** D = ddg(A, 5, 3);
+    print_output(D, 5, 5);
 }
