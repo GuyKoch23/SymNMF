@@ -180,6 +180,10 @@ double** file_to_matrix_X(char* file_name, int N, int d){
         }
       line_count++;
     }
+    if (X == NULL) {
+      printf("An Error Has Occurred");
+      return NULL;
+    }
     free(line);
     fclose(f);
     return X;
@@ -200,7 +204,11 @@ void print_output(double** mat, int N, int d) {
 }
 
 
-double** sym(double** X, int N, int d){
+double** sym(char* goal, char* file_name, int N, int d){
+    double** X = file_to_matrix_X(file_name, N, d);
+    if(X == NULL){
+        return NULL;
+    }
     double** A = NULL;
     double current_sum = 0;
     double current_exp = 0;
@@ -227,10 +235,15 @@ double** sym(double** X, int N, int d){
             }
         }
     }
+    free_matrix(X, N, d);
     return A;
 }
 
-double** ddg(double** A, int N, int d){
+double** ddg(char* goal, char* file_name, int N, int d){
+    double** A = sym(goal, file_name, N, d);
+    if(A == NULL){
+        return NULL;
+    }
     double** D = NULL;
     double current_sum = 0;
     D = (double**)calloc(N,sizeof(double*));
@@ -248,6 +261,7 @@ double** ddg(double** A, int N, int d){
         }
         D[i][i] = current_sum;
     }
+    free_matrix(A, N, N);
     return D;
 }
 
@@ -266,7 +280,11 @@ double** diag_pow_minus_half(double** mat, int N){
     return min_half_diag;
 }
 
-double** norm(double** A, double** D, int N, int d){
+double** norm(char* goal, char* file_name, int N, int d){
+    double** D = ddg(goal, file_name, N, d);
+    if(D == NULL){
+        return NULL;
+    }
     double** D_min_half = diag_pow_minus_half(D, N);
     double** W = (double**)calloc(N,sizeof(double*));
     if(W == NULL){
@@ -286,6 +304,7 @@ double** norm(double** A, double** D, int N, int d){
             W[i][j] = W[i][j]*D_min_half[j][j];
         }
     }
+    free_matrix(D, N, N);
     return W;
 }
 
@@ -397,31 +416,24 @@ double** symnmf(double** H, double** W, double eps, int max_iter, int N, int K){
     return H;
 }
 
-int run_command(double** X, char* goal, int N, int d){
+int run_command(char* goal, char* file_name, int N, int d){
 
     if(goal == "sym"){
-        double** A = sym(X, N, d);
+        double** A = sym(goal, file_name, N, d);
         print_output(A, N, d);
         free_matrix(A, N, N);
     }
     else if (goal == "ddg")
     {
-        double** A = sym(X, N, d);
-        double** D = ddg(A, N, d);
+        double** D = ddg(goal, file_name, N, d);
         print_output(D, N, d);
         free_matrix(D, N, N);
-        free_matrix(A, N, N);
-
     }
     else if (goal == "norm")
     {
-        double** A = sym(X, N, d);
-        double** D = ddg(A, N, d);
-        double** W = norm(A, D, N, d);
+        double** W = norm(goal, file_name, N, d);
         print_output(W, N, d);
         free_matrix(W, N, N);
-        free_matrix(D, N, N);
-        free_matrix(A, N, N);
     }
 }
 
@@ -443,13 +455,7 @@ int main(int argc, char* argv[]){
     int d = get_d_size(file_name);
     int N = get_N_size(file_name);
 
-    X = file_to_matrix_X(file_name, N, d);
-    if (X == NULL) {
-      printf("An Error Has Occurred");
-      return 1;
-    }
-
-    run_command(X, goal, N, d);
+    run_command(goal, file_name, N, d);
     free(goal);
     free(file_name);
 }
