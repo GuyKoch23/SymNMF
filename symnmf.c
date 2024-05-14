@@ -278,8 +278,9 @@ double** diag_pow_minus_half(double** mat, int N){
 }
 
 double** norm(char* goal, char* file_name, int N, int d){
+    double** A = sym(goal, file_name, N, d);
     double** D = ddg(goal, file_name, N, d);
-    if(D == NULL){
+    if(A == NULL || D == NULL){
         return NULL;
     }
     double** D_min_half = diag_pow_minus_half(D, N);
@@ -302,6 +303,7 @@ double** norm(char* goal, char* file_name, int N, int d){
         }
     }
     free_matrix(D, N, N);
+    free_matrix(A, N, N);
     return W;
 }
 
