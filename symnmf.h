@@ -1,6 +1,7 @@
-double** sym(char* goal, char* file_name, int N, int d);
+#include "symnmf.c"
 
-double** ddg(char* goal, char* file_name, int N, int d);
 
-double** norm(char* goal, char* file_name, int N, int d);
-double** symnmf(double** H, double** W, double eps, int max_iter, int N, int K);
+double** sym_c(double** X, int N, int d);
+double** ddg_c(double** X, int N, int d);
+double** norm_c(double** X, int N, int d);
+double** symnmf_c(double** H, double** W, double eps, int max_iter, int N, int K);

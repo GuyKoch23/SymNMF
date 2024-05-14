@@ -22,10 +22,9 @@ def get_mat_avg(mat, rows, cols):
             cnt+=1
     return sum / cnt
 
-def print_result_matrix(mat, rows, cols):
-    for i in range(rows):
-        for j in range(cols):
-            print(mat[i][j])
+def print_result_matrix(matrix, rows, cols):
+    print('\n'.join(['\t'.join([str(round(cell,4)).ljust(6,'0') for cell in row]) for row in matrix]))
+
 
 def main(K, goal, file_name): 
     np.random.seed(0)
@@ -39,7 +38,6 @@ def main(K, goal, file_name):
         H = symnmf.symnmf(H, W, N, d)
         print_result_matrix(H, N, K)
     elif(goal == "sym"):
-        print("1")
         A = symnmf.sym(X, N, d)
         print_result_matrix(A, N, N)
     elif(goal == "ddg"):

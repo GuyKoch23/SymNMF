@@ -191,7 +191,7 @@ double** file_to_matrix_X(char* file_name, int N, int d){
 }
 
 
-double** sym(double** X, int N, int d){
+double** sym_c(double** X, int N, int d){
     int i, j, k;
     double** A = NULL;
     double current_sum = 0;
@@ -222,11 +222,11 @@ double** sym(double** X, int N, int d){
     return A;
 }
 
-double** ddg(double** X, int N, int d){
+double** ddg_c(double** X, int N, int d){
     int i, j;
     double current_sum;
     double **A, **D;
-    A = sym(X, N, d);
+    A = sym_c(X, N, d);
     if(A == NULL){
         return NULL;
     }
@@ -265,11 +265,11 @@ double** diag_pow_minus_half(double** mat, int N){
     return min_half_diag;
 }
 
-double** norm(double** X, int N, int d){
+double** norm_c(double** X, int N, int d){
     int i, j;
     double **A, **D, **D_min_half, **W;
-    A = sym(X, N, d);
-    D = ddg(X, N, d);
+    A = sym_c(X, N, d);
+    D = ddg_c(X, N, d);
     if(A == NULL || D == NULL){
         return NULL;
     }
@@ -336,7 +336,7 @@ double** multiple_matrixes_cust(double** A, double** B, int rowA, int rowB, int 
     return AB;
 }
 
-double** symnmf(double** H, double** W, double eps, int max_iter, int N, int K){
+double** symnmf_c(double** H, double** W, double eps, int max_iter, int N, int K){
     int iter_count = 0;
     int convergance_rate = eps+1;
     int trace = 0;
@@ -407,7 +407,7 @@ int run_command(char* goal, char* file_name, int N, int d){
         return 1;
     }
     if(strcmp(goal,"sym") == 0){
-        double** A = sym(X, N, d);
+        double** A = sym_c(X, N, d);
         if(A == NULL){
             return 1;
         }
@@ -416,7 +416,7 @@ int run_command(char* goal, char* file_name, int N, int d){
     }
     else if (strcmp(goal,"ddg") == 0)
     {
-        double** D = ddg(X, N, d);
+        double** D = ddg_c(X, N, d);
         if(D == NULL){
             return 1;
         }
@@ -425,7 +425,7 @@ int run_command(char* goal, char* file_name, int N, int d){
     }
     else if (strcmp(goal,"norm") == 0)
     {
-        double** W = norm(X, N, d);
+        double** W = norm_c(X, N, d);
         if(W == NULL){
             return 1;
         }
