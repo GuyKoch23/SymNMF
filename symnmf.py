@@ -39,6 +39,7 @@ def main(K, goal, file_name):
         H = symnmf.symnmf(H, W, N, d)
         print_result_matrix(H, N, K)
     elif(goal == "sym"):
+        print("1")
         A = symnmf.sym(X, N, d)
         print_result_matrix(A, N, N)
     elif(goal == "ddg"):

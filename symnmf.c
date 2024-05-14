@@ -44,7 +44,7 @@ size_t getline(char **lineptr, size_t *n, FILE *stream)
         p = bufptr;
         while (c != EOF)
         {
-            if ((p - bufptr) > (size - 1))
+            if ((size_t)(p - bufptr) > (size - 1))
             {
                 size = size + 128;
                 bufptr = realloc(bufptr, size);
@@ -105,14 +105,13 @@ int commas_in_str(char* str){
 int get_d_size(char* file_name){
     FILE *f;
     size_t len = 0;
-    ssize_t read;
     char* line = NULL;
     int d;
     f = fopen(file_name, "r");
     if(f == NULL){
         return -1;
     }
-    read = getline(&line, &len, f);
+    getline(&line, &len, f);
     d = 1 + commas_in_str(line);
     fclose(f);
     free(line);
@@ -122,7 +121,6 @@ int get_d_size(char* file_name){
 int get_N_size(char* file_name){
     FILE *f;
     size_t len = 0;
-    ssize_t read;
     char* line = NULL;
     int N = 0;
     f = fopen(file_name, "r");
@@ -143,7 +141,6 @@ double** file_to_matrix_X(char* file_name, int N, int d){
     double **X = NULL;
     FILE *f;
     size_t len = 0;
-    ssize_t read;
     char* line = NULL;
     char *start_iterator = NULL;
     char *end_iterator = NULL;
@@ -159,11 +156,10 @@ double** file_to_matrix_X(char* file_name, int N, int d){
         return NULL;
     }
 
-    while (getline(&line, &len, f) != -1 && line_count < N){
-        printf("%s", line);
-        X[line_count] = (double*)malloc(d*sizeof(double)); // allocate memory for line numbers
+    while ((int)getline(&line, &len, f) != -1 && line_count < N){
+        X[line_count] = (double*)malloc(d*sizeof(double));
         
-        if (X[line_count] == NULL) { // memory allocation failed
+        if (X[line_count] == NULL) {
             free_array_of_pointers(X, line_count);
             free(line);
             return NULL;
@@ -196,6 +192,7 @@ double** file_to_matrix_X(char* file_name, int N, int d){
 
 
 double** sym(double** X, int N, int d){
+    int i, j, k;
     double** A = NULL;
     double current_sum = 0;
     double current_exp = 0;
@@ -203,18 +200,18 @@ double** sym(double** X, int N, int d){
     if(A == NULL){
         return NULL;
     }
-    for(int i = 0 ; i < N; i++){
+    for(i = 0 ; i < N; i++){
         A[i] = (double*)malloc(N*sizeof(double));
         if(A[i] == NULL){
             return NULL;
         }   
-        for(int j = 0; j < N; j++){
+        for(j = 0; j < N; j++){
             if(i == j){
                 A[i][j] = 0;
             }
             else{
                 current_sum = 0;
-                for(int k = 0; k < d; k++){
+                for(k = 0; k < d; k++){
                     current_sum += pow((X[i][k] - X[j][k]),2);
                 }
                 current_exp = exp((-0.5)*current_sum);
@@ -226,23 +223,24 @@ double** sym(double** X, int N, int d){
 }
 
 double** ddg(double** X, int N, int d){
-    double** A = sym(X, N, d);
+    int i, j;
+    double current_sum;
+    double **A, **D;
+    A = sym(X, N, d);
     if(A == NULL){
         return NULL;
     }
-    double** D = NULL;
-    double current_sum = 0;
     D = (double**)calloc(N,sizeof(double*));
     if(D == NULL){
         return NULL;
     }
-    for(int i = 0; i < N; i++){
+    for(i = 0; i < N; i++){
         D[i] = (double*)calloc(N,sizeof(double));
         if(D[i] == NULL){
             return NULL;
         }
         current_sum = 0;
-        for(int j = 0; j <N; j++){
+        for(j = 0; j <N; j++){
             current_sum += A[i][j];
         }
         D[i][i] = current_sum;
@@ -252,11 +250,12 @@ double** ddg(double** X, int N, int d){
 }
 
 double** diag_pow_minus_half(double** mat, int N){
+    int i;
     double** min_half_diag = (double**)calloc(N,sizeof(double*));
     if(min_half_diag == NULL){
         return NULL;
     }
-    for(int i = 0; i < N; i++){
+    for(i = 0; i < N; i++){
         min_half_diag[i] = (double*)calloc(N,sizeof(double));
         if(min_half_diag[i] == NULL){
             return NULL;
@@ -267,27 +266,29 @@ double** diag_pow_minus_half(double** mat, int N){
 }
 
 double** norm(double** X, int N, int d){
-    double** A = sym(X, N, d);
-    double** D = ddg(X, N, d);
+    int i, j;
+    double **A, **D, **D_min_half, **W;
+    A = sym(X, N, d);
+    D = ddg(X, N, d);
     if(A == NULL || D == NULL){
         return NULL;
     }
-    double** D_min_half = diag_pow_minus_half(D, N);
-    double** W = (double**)calloc(N,sizeof(double*));
+    D_min_half = diag_pow_minus_half(D, N);
+    W = (double**)calloc(N,sizeof(double*));
     if(W == NULL){
         return NULL;
     }
-    for(int i = 0; i < N; i++){
+    for(i = 0; i < N; i++){
         W[i] = (double*)calloc(N,sizeof(double));
         if(W[i] == NULL){
             return NULL;
         }
-        for(int j = 0; j < N; j++){
+        for(j = 0; j < N; j++){
             W[i][j] = D_min_half[i][i]*A[i][j];
         }
     }
-    for(int i = 0; i < N; i++){
-        for(int j = 0; j < N; j++){
+    for(i = 0; i < N; i++){
+        for(j = 0; j < N; j++){
             W[i][j] = W[i][j]*D_min_half[j][j];
         }
     }
@@ -298,34 +299,36 @@ double** norm(double** X, int N, int d){
 
 double** transpose_matrix_cust(double** A, int row, int col){
     double** At = (double**)calloc(row,sizeof(double*));
+    int i, j;
     if(At == NULL){
         return NULL;
     }
-    for (int i = 0; i < row; i++) {
+    for (i = 0; i < row; i++) {
         At[i] = (double*)calloc(row,sizeof(double));
         if(At[i] == NULL){
             return NULL;
         }
-        for (int j = 0; j < col; j++){
+        for (j = 0; j < col; j++){
             At[i][j] = A[j][i];
         }
     }
     return At;
 }
 
-double** multiple_matrixes_cust(double** A, double** B, int rowA, int colA, int rowB, int colB){
+double** multiple_matrixes_cust(double** A, double** B, int rowA, int rowB, int colB){
     double** AB = (double**)calloc(rowA,sizeof(double*));
+    int i, j, k;
     if(AB == NULL){
         return NULL;
     }
-    for (int i = 0; i < rowA; i++) {
+    for (i = 0; i < rowA; i++) {
         AB[i] = (double*)calloc(colB,sizeof(double));
         if(AB[i] == NULL){
             return NULL;
         }
-        for (int j = 0; j < colB; j++) {
+        for (j = 0; j < colB; j++) {
             AB[i][j] = 0;
-            for (int k = 0; k < rowB; k++) {
+            for (k = 0; k < rowB; k++) {
                 AB[i][j] += A[i][k] * B[k][j];
             }
         }
@@ -336,7 +339,6 @@ double** multiple_matrixes_cust(double** A, double** B, int rowA, int colA, int 
 double** symnmf(double** H, double** W, double eps, int max_iter, int N, int K){
     int iter_count = 0;
     int convergance_rate = eps+1;
-    int coef = 0;
     int trace = 0;
     double** H_new = NULL;
     double** H_Diff = NULL;
@@ -345,48 +347,47 @@ double** symnmf(double** H, double** W, double eps, int max_iter, int N, int K){
     double** WHt = NULL;
     double** HT = NULL;
     double** C = NULL;
+    int i,j;
     while(iter_count < max_iter && convergance_rate >= eps){
-        WHt = multiple_matrixes_cust(W, H, N, N, K, N);
+        WHt = multiple_matrixes_cust(W, H, N, K, N);
         HT = transpose_matrix_cust(H, N, K);
-        C = multiple_matrixes_cust(H, HT, N, K, K, N);
+        C = multiple_matrixes_cust(H, HT, N, K, N);
         trace = 0;
         H_new = (double**)calloc(N, sizeof(double*));
         if(H_new == NULL){
             return NULL;
         }
-        C = multiple_matrixes_cust(C, H, N, N, N, K);
-        //Updating H
-        for(int i = 0; i < N; i++){
+        C = multiple_matrixes_cust(C, H, N, N, K);
+        for(i = 0; i < N; i++){
             H_new[i] = (double*)calloc(K, sizeof(double));
             if(H_new[i] == NULL){
                 return NULL;
             }
-            for(int j = 0; j < K; j++){
+            for(j = 0; j < K; j++){
                 H_new[i][j] = H[i][j]*((1-0.5)+0.5*(WHt[i][j]/C[i][j]));
             }
         }
-        //Checking for convergance
         H_Diff = (double**)calloc(N, sizeof(double*));
         if(H_Diff == NULL){
             return NULL;
         }
-        for(int i = 0; i < N; i++){
+        for(i = 0; i < N; i++){
             H_Diff[i] = (double*)calloc(N, sizeof(double*));
             if(H_Diff[i] == NULL){
                 return NULL;
             }
-            for(int j = 0; j < K; j++){
+            for(j = 0; j < K; j++){
                 H_Diff[i][j] = H_new[i][j] - H[i][j];
             }
         }
         H_Diff_T = transpose_matrix_cust(H_Diff, N, K);
-        E = multiple_matrixes_cust(H_Diff_T, H_Diff, K, N, N, K);
-        for(int i = 0; i < K; i++){
+        E = multiple_matrixes_cust(H_Diff_T, H_Diff, K, N, K);
+        for(i = 0; i < K; i++){
             trace += E[i][i];
         }
         convergance_rate = trace;
         iter_count++;
-        if(iter_count > 1){ // we dont want to free the original H
+        if(iter_count > 1){
                 free_array_of_pointers(H, K);
         }
         free_array_of_pointers(WHt, N);
@@ -403,32 +404,45 @@ double** symnmf(double** H, double** W, double eps, int max_iter, int N, int K){
 int run_command(char* goal, char* file_name, int N, int d){
     double** X = file_to_matrix_X(file_name, N, d);
     if(X == NULL){
-        return NULL;
+        return 1;
     }
-    if(strcmp(goal,"sym") != 0){
+    if(strcmp(goal,"sym") == 0){
         double** A = sym(X, N, d);
-        print_output(A, N, d);
+        if(A == NULL){
+            return 1;
+        }
+        print_output(A, N, N);
         free_array_of_pointers(A, N);
     }
-    else if (strcmp(goal,"ddg") != 0)
+    else if (strcmp(goal,"ddg") == 0)
     {
         double** D = ddg(X, N, d);
-        print_output(D, N, d);
+        if(D == NULL){
+            return 1;
+        }
+        print_output(D, N, N);
         free_array_of_pointers(D, N);
     }
-    else if (strcmp(goal,"norm") != 0)
+    else if (strcmp(goal,"norm") == 0)
     {
         double** W = norm(X, N, d);
-        print_output(W, N, d);
+        if(W == NULL){
+            return 1;
+        }
+        print_output(W, N, N);
         free_array_of_pointers(W, N);
     }
     free_array_of_pointers(X, N);
+    return 0;
 }
 
 int main(int argc, char* argv[]){
-    char *goal = (char*)NULL;
-    char *file_name = (char*)NULL;
-    double **X;
+    char* goal = NULL;
+    char* file_name = NULL;
+    int N, d;
+    if(argc != 3){
+        return 1;
+    }
     goal = (char*)malloc(strlen(argv[1]));
     if(goal == NULL){
         return 1;
@@ -440,10 +454,11 @@ int main(int argc, char* argv[]){
     strcpy(goal, argv[1]);
     strcpy(file_name, argv[2]);
 
-    int d = get_d_size(file_name);
-    int N = get_N_size(file_name);
+    d = get_d_size(file_name);
+    N = get_N_size(file_name);
 
     run_command(goal, file_name, N, d);
     free(goal);
     free(file_name);
+    return 0;
 }

@@ -1,1 +1,1 @@
-gcc-ansi-Wall-Wextra-Werror-pedantic-errors
+gcc -ansi -Wall -Wextra -Werror -pedantic -errors
