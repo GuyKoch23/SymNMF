@@ -77,10 +77,18 @@ void free_array_of_pointers(double** arr, int length) {
   free(arr);
 }
 
-void free_matrix(double** mat, int rows, int cols){
-    for(int i = 0; i < rows; i++){
-        free_array_of_pointers(mat[i], cols);
+void print_output(double** mat, int N, int d) {
+  int i, j;
+
+  for (i=0; i<N; i++) {
+    for (j=0; j<d; j++) {
+      printf("%.4f",mat[i][j]);
+      if (j != d-1)
+        printf(",");
+      else
+        printf("\n");
     }
+  }
 }
 
 int commas_in_str(char* str){
@@ -152,7 +160,7 @@ double** file_to_matrix_X(char* file_name, int N, int d){
     }
 
     while (getline(&line, &len, f) != -1 && line_count < N){
-        
+        printf("%s", line);
         X[line_count] = (double*)malloc(d*sizeof(double)); // allocate memory for line numbers
         
         if (X[line_count] == NULL) { // memory allocation failed
@@ -184,20 +192,6 @@ double** file_to_matrix_X(char* file_name, int N, int d){
     free(line);
     fclose(f);
     return X;
-}
-
-void print_output(double** mat, int N, int d) {
-  int i, j;
-
-  for (i=0; i<N; i++) {
-    for (j=0; j<d; j++) {
-      printf("%.4f",mat[i][j]);
-      if (j != d-1)
-        printf(",");
-      else
-        printf("\n");
-    }
-  }
 }
 
 
@@ -232,7 +226,7 @@ double** sym(char* goal, char* file_name, int N, int d){
             }
         }
     }
-    free_matrix(X, N, d);
+    free_array_of_pointers(X, N);
     return A;
 }
 
@@ -258,7 +252,7 @@ double** ddg(char* goal, char* file_name, int N, int d){
         }
         D[i][i] = current_sum;
     }
-    free_matrix(A, N, N);
+    free_array_of_pointers(A, N);
     return D;
 }
 
@@ -302,8 +296,8 @@ double** norm(char* goal, char* file_name, int N, int d){
             W[i][j] = W[i][j]*D_min_half[j][j];
         }
     }
-    free_matrix(D, N, N);
-    free_matrix(A, N, N);
+    free_array_of_pointers(D, N);
+    free_array_of_pointers(A, N);
     return W;
 }
 
@@ -313,7 +307,7 @@ double** transpose_matrix_cust(double** A, int row, int col){
         return NULL;
     }
     for (int i = 0; i < row; i++) {
-        At[i] = (double**)calloc(row,sizeof(double));
+        At[i] = (double*)calloc(row,sizeof(double));
         if(At[i] == NULL){
             return NULL;
         }
@@ -330,7 +324,7 @@ double** multiple_matrixes_cust(double** A, double** B, int rowA, int colA, int 
         return NULL;
     }
     for (int i = 0; i < rowA; i++) {
-        AB[i] = (double**)calloc(colB,sizeof(double));
+        AB[i] = (double*)calloc(colB,sizeof(double));
         if(AB[i] == NULL){
             return NULL;
         }
@@ -368,7 +362,7 @@ double** symnmf(double** H, double** W, double eps, int max_iter, int N, int K){
         C = multiple_matrixes_cust(C, H, N, N, N, K);
         //Updating H
         for(int i = 0; i < N; i++){
-            H_new[i] = (double**)calloc(K, sizeof(double));
+            H_new[i] = (double*)calloc(K, sizeof(double));
             if(H_new[i] == NULL){
                 return NULL;
             }
@@ -382,7 +376,7 @@ double** symnmf(double** H, double** W, double eps, int max_iter, int N, int K){
             return NULL;
         }
         for(int i = 0; i < N; i++){
-            H_Diff[i] = (double**)calloc(N, sizeof(double*));
+            H_Diff[i] = (double*)calloc(N, sizeof(double*));
             if(H_Diff[i] == NULL){
                 return NULL;
             }
@@ -397,42 +391,37 @@ double** symnmf(double** H, double** W, double eps, int max_iter, int N, int K){
         }
         convergance_rate = trace;
         iter_count++;
-        for(int i = 0; i < N; i++){
-            if(iter_count > 1){ // we dont want to free the original H
-                free_array_of_pointers(H[i], K);
-            }
-            free_array_of_pointers(WHt[i], N);
-            free_array_of_pointers(C[i], N);
-            free_array_of_pointers(H_Diff[i], K);
+        if(iter_count > 1){ // we dont want to free the original H
+                free_array_of_pointers(H, K);
         }
-        for(int i = 0; i < K; i++){
-            free_array_of_pointers(HT[i], N);
-            free_array_of_pointers(H_Diff_T[i], N);
-            free_array_of_pointers(E[i], K);
-        }
+        free_array_of_pointers(WHt, N);
+        free_array_of_pointers(C, N);
+        free_array_of_pointers(H_Diff, K);
+        free_array_of_pointers(HT, N);
+        free_array_of_pointers(H_Diff_T, N);
+        free_array_of_pointers(E, K);
         H = H_new;
     }
     return H;
 }
 
 int run_command(char* goal, char* file_name, int N, int d){
-
-    if(goal == "sym"){
+    if(strcmp(goal,"sym") != 0){
         double** A = sym(goal, file_name, N, d);
         print_output(A, N, d);
-        free_matrix(A, N, N);
+        free_array_of_pointers(A, N);
     }
-    else if (goal == "ddg")
+    else if (strcmp(goal,"ddg") != 0)
     {
         double** D = ddg(goal, file_name, N, d);
         print_output(D, N, d);
-        free_matrix(D, N, N);
+        free_array_of_pointers(D, N);
     }
-    else if (goal == "norm")
+    else if (strcmp(goal,"norm") != 0)
     {
         double** W = norm(goal, file_name, N, d);
         print_output(W, N, d);
-        free_matrix(W, N, N);
+        free_array_of_pointers(W, N);
     }
 }
 
