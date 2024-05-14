@@ -195,11 +195,7 @@ double** file_to_matrix_X(char* file_name, int N, int d){
 }
 
 
-double** sym(char* goal, char* file_name, int N, int d){
-    double** X = file_to_matrix_X(file_name, N, d);
-    if(X == NULL){
-        return NULL;
-    }
+double** sym(double** X, int N, int d){
     double** A = NULL;
     double current_sum = 0;
     double current_exp = 0;
@@ -226,12 +222,11 @@ double** sym(char* goal, char* file_name, int N, int d){
             }
         }
     }
-    free_array_of_pointers(X, N);
     return A;
 }
 
-double** ddg(char* goal, char* file_name, int N, int d){
-    double** A = sym(goal, file_name, N, d);
+double** ddg(double** X, int N, int d){
+    double** A = sym(X, N, d);
     if(A == NULL){
         return NULL;
     }
@@ -271,9 +266,9 @@ double** diag_pow_minus_half(double** mat, int N){
     return min_half_diag;
 }
 
-double** norm(char* goal, char* file_name, int N, int d){
-    double** A = sym(goal, file_name, N, d);
-    double** D = ddg(goal, file_name, N, d);
+double** norm(double** X, int N, int d){
+    double** A = sym(X, N, d);
+    double** D = ddg(X, N, d);
     if(A == NULL || D == NULL){
         return NULL;
     }
@@ -406,23 +401,28 @@ double** symnmf(double** H, double** W, double eps, int max_iter, int N, int K){
 }
 
 int run_command(char* goal, char* file_name, int N, int d){
+    double** X = file_to_matrix_X(file_name, N, d);
+    if(X == NULL){
+        return NULL;
+    }
     if(strcmp(goal,"sym") != 0){
-        double** A = sym(goal, file_name, N, d);
+        double** A = sym(X, N, d);
         print_output(A, N, d);
         free_array_of_pointers(A, N);
     }
     else if (strcmp(goal,"ddg") != 0)
     {
-        double** D = ddg(goal, file_name, N, d);
+        double** D = ddg(X, N, d);
         print_output(D, N, d);
         free_array_of_pointers(D, N);
     }
     else if (strcmp(goal,"norm") != 0)
     {
-        double** W = norm(goal, file_name, N, d);
+        double** W = norm(X, N, d);
         print_output(W, N, d);
         free_array_of_pointers(W, N);
     }
+    free_array_of_pointers(X, N);
 }
 
 int main(int argc, char* argv[]){

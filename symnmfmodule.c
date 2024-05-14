@@ -8,30 +8,30 @@
 
 
 static PyObject* sym(PyObject *self, PyObject *args){
-    char* goal, file_name;
+    double** X;
     int N, d;
-    if(!PyArg_ParseTuple(args, "ssii", &goal, &file_name, &N, &d)){
+    if(!PyArg_ParseTuple(args, "oii", &X, &N, &d)){
         return NULL;
     }
-    return Py_BuildValue("O", sym(goal, file_name, N, d));
+    return Py_BuildValue("O", sym(X, N, d));
 }
 
 static PyObject* ddg(PyObject *self, PyObject *args){
-    char* goal, file_name;
+    double** X;
     int N, d;
-    if(!PyArg_ParseTuple(args, "ssii", &goal, &file_name, &N, &d)){
+    if(!PyArg_ParseTuple(args, "oii", &X, &N, &d)){
         return NULL;
     }
-    return Py_BuildValue("O", ddg(goal, file_name, N, d));
+    return Py_BuildValue("O", ddg(X, N, d));
 }
 
 static PyObject* norm(PyObject *self, PyObject *args){
-    char* goal, file_name;
+    double** X;
     int N, d;
-    if(!PyArg_ParseTuple(args, "ssii", &goal, &file_name, &N, &d)){
+    if(!PyArg_ParseTuple(args, "oii", &X, &N, &d)){
         return NULL;
     }
-    return Py_BuildValue("O", norm(goal, file_name, N, d));
+    return Py_BuildValue("O", norm(X, N, d));
 }
 
 static PyMethodDef symmnfmodMethods[] = {
