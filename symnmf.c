@@ -291,6 +291,113 @@ double** norm(double** A, double** D, int N, int d){
     return W;
 }
 
+double** transpose_matrix_cust(double** A, int row, int col){
+    double** At = (double**)calloc(row,sizeof(double*));
+    if(At == NULL){
+        return NULL;
+    }
+    for (int i = 0; i < row; i++) {
+        At[i] = (double**)calloc(row,sizeof(double));
+        if(At[i] == NULL){
+            return NULL;
+        }
+        for (int j = 0; j < col; j++){
+            At[i][j] = A[j][i];
+        }
+    }
+    return At;
+}
+
+double** multiple_matrixes_cust(double** A, double** B, int rowA, int colA, int rowB, int colB){
+    double** AB = (double**)calloc(rowA,sizeof(double*));
+    if(AB == NULL){
+        return NULL;
+    }
+    for (int i = 0; i < rowA; i++) {
+        AB[i] = (double**)calloc(colB,sizeof(double));
+        if(AB[i] == NULL){
+            return NULL;
+        }
+        for (int j = 0; j < colB; j++) {
+            AB[i][j] = 0;
+            for (int k = 0; k < rowB; k++) {
+                AB[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+    return AB;
+}
+
+double** symnmf(double** H, double** W, double eps, int max_iter, int N, int K){
+    int iter_count = 0;
+    int convergance_rate = eps+1;
+    int coef = 0;
+    int trace = 0;
+    double** H_new = NULL;
+    double** H_Diff = NULL;
+    double** H_Diff_T = NULL;
+    double** E = NULL;
+    double** WHt = NULL;
+    double** HT = NULL;
+    double** C = NULL;
+    while(iter_count < max_iter && convergance_rate >= eps){
+        WHt = multiple_matrixes_cust(W, H, N, N, K, N);
+        HT = transpose_matrix_cust(H, N, K);
+        C = multiple_matrixes_cust(H, HT, N, K, K, N);
+        trace = 0;
+        H_new = (double**)calloc(N, sizeof(double*));
+        if(H_new == NULL){
+            return NULL;
+        }
+        C = multiple_matrixes_cust(C, H, N, N, N, K);
+        //Updating H
+        for(int i = 0; i < N; i++){
+            H_new[i] = (double**)calloc(K, sizeof(double));
+            if(H_new[i] == NULL){
+                return NULL;
+            }
+            for(int j = 0; j < K; j++){
+                H_new[i][j] = H[i][j]*((1-0.5)+0.5*(WHt[i][j]/C[i][j]));
+            }
+        }
+        //Checking for convergance
+        H_Diff = (double**)calloc(N, sizeof(double*));
+        if(H_Diff == NULL){
+            return NULL;
+        }
+        for(int i = 0; i < N; i++){
+            H_Diff[i] = (double**)calloc(N, sizeof(double*));
+            if(H_Diff[i] == NULL){
+                return NULL;
+            }
+            for(int j = 0; j < K; j++){
+                H_Diff[i][j] = H_new[i][j] - H[i][j];
+            }
+        }
+        H_Diff_T = transpose_matrix_cust(H_Diff, N, K);
+        E = multiple_matrixes_cust(H_Diff_T, H_Diff, K, N, N, K);
+        for(int i = 0; i < K; i++){
+            trace += E[i][i];
+        }
+        convergance_rate = trace;
+        iter_count++;
+        for(int i = 0; i < N; i++){
+            if(iter_count > 1){ // we dont want to free the original H
+                free_array_of_pointers(H[i], K);
+            }
+            free_array_of_pointers(WHt[i], N);
+            free_array_of_pointers(C[i], N);
+            free_array_of_pointers(H_Diff[i], K);
+        }
+        for(int i = 0; i < K; i++){
+            free_array_of_pointers(HT[i], N);
+            free_array_of_pointers(H_Diff_T[i], N);
+            free_array_of_pointers(E[i], K);
+        }
+        H = H_new;
+    }
+    return H;
+}
 
 int main(int argc, char* argv[]){
     char *goal = (char*)NULL;
