@@ -7,41 +7,73 @@
 #include <symnmf.h>
 
 
-static PyObject* sym(PyObject *self, PyObject *args);
+static PyObject* sym(PyObject *self, PyObject *args){
+    char* goal, file_name;
+    int N, d;
+    if(!PyArg_ParseTuple(args, "ssii", &goal, &file_name, &N, &d)){
+        return NULL;
+    }
+    return Py_BuildValue("O", sym(goal, file_name, N, d));
+}
 
-static PyMethodDef mykmeansspMethods[] = {
+static PyObject* ddg(PyObject *self, PyObject *args){
+    char* goal, file_name;
+    int N, d;
+    if(!PyArg_ParseTuple(args, "ssii", &goal, &file_name, &N, &d)){
+        return NULL;
+    }
+    return Py_BuildValue("O", ddg(goal, file_name, N, d));
+}
+
+static PyObject* norm(PyObject *self, PyObject *args){
+    char* goal, file_name;
+    int N, d;
+    if(!PyArg_ParseTuple(args, "ssii", &goal, &file_name, &N, &d)){
+        return NULL;
+    }
+    return Py_BuildValue("O", norm(goal, file_name, N, d));
+}
+
+static PyMethodDef symmnfmodMethods[] = {
     {
-      "fit",
-      (PyCFunction) fit,
+      "sym",
+      (PyCFunction) sym,
       METH_VARARGS,
       PyDoc_STR(
-        "Perform some operation using K-means algorithm.\n \
-        Input:\n \
-        K : int - The number of centroids.\n \
-        N : int - The number of data points.\n \
-        d : int - The dimensionality of the data points.\n \
-        iter : int - The maximum number of iterations for the algorithm.\n \
-        eps : float - The threshold for convergence.\n \
-        vectors : double** - A 2D list representing the input data points. Each inner list represents a data point and should have 'd' elements.\n \
-        centroids : double** - A 2D list representing the initial centroids for the clusters. It should have 'K' inner lists, each representing a centroid point and should have 'd' elements.\n \
-        "
+        "Perform some operation using Sym algorithm."
+      )
+    },
+    {
+      "ddg",
+      (PyCFunction) ddg,
+      METH_VARARGS,
+      PyDoc_STR(
+        "Perform some operation using ddg algorithm."
+      )
+    },
+    {
+      "norm",
+      (PyCFunction) norm,
+      METH_VARARGS,
+      PyDoc_STR(
+        "Perform some operation using norm algorithm."
       )
     },
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef mykmeansspModule = {
+static struct PyModuleDef symmnfModule = {
     PyModuleDef_HEAD_INIT,
-    "mykmeanssp",
+    "symmnf",
     NULL,
     -1,
-    mykmeansspMethods
+    symmnfmodMethods
 };
 
-PyMODINIT_FUNC PyInit_mykmeanssp(void)
+PyMODINIT_FUNC PyInit_symmnf(void)
 {
     PyObject *m;
-    m = PyModule_Create(&mykmeansspModule);
+    m = PyModule_Create(&symmnfModule);
     if (!m) {
         return NULL;
     }
