@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#define SYM "sym"
+#define DDG "ddg"
+#define NORM "norm"
 
 size_t getline(char **lineptr, size_t *n, FILE *stream)
     {
@@ -77,6 +80,12 @@ void free_array_of_pointers(double** arr, int length) {
   free(arr);
 }
 
+void free_matrix(double** mat, int rows, int cols){
+    for(int i = 0; i < rows; i++){
+        free_array_of_pointers(mat[i], cols);
+    }
+}
+
 int commas_in_str(char* str){
     int count = 0;
     while(*str != '\0'){
@@ -125,7 +134,7 @@ int get_N_size(char* file_name){
 
 }
 
-double** initialize_X(char* file_name, int N, int d){
+double** file_to_matrix_X(char* file_name, int N, int d){
     double **X = NULL;
     FILE *f;
     size_t len = 0;
@@ -173,17 +182,6 @@ double** initialize_X(char* file_name, int N, int d){
     }
     free(line);
     fclose(f);
-    return X;
-}
-
-double** file_to_matrix(char* file_name){
-    int d = get_d_size(file_name);
-    int N = get_N_size(file_name);
-    if(d == -1 || N == -1){ // File is not valid
-        return NULL;
-    }
-    double **X = NULL;
-    X = initialize_X(file_name, N, d);
     return X;
 }
 
@@ -399,6 +397,34 @@ double** symnmf(double** H, double** W, double eps, int max_iter, int N, int K){
     return H;
 }
 
+int run_command(double** X, char* goal, int N, int d){
+
+    if(goal == "sym"){
+        double** A = sym(X, N, d);
+        print_output(A, N, d);
+        free_matrix(A, N, N);
+    }
+    else if (goal == "ddg")
+    {
+        double** A = sym(X, N, d);
+        double** D = ddg(A, N, d);
+        print_output(D, N, d);
+        free_matrix(D, N, N);
+        free_matrix(A, N, N);
+
+    }
+    else if (goal == "norm")
+    {
+        double** A = sym(X, N, d);
+        double** D = ddg(A, N, d);
+        double** W = norm(A, D, N, d);
+        print_output(W, N, d);
+        free_matrix(W, N, N);
+        free_matrix(D, N, N);
+        free_matrix(A, N, N);
+    }
+}
+
 int main(int argc, char* argv[]){
     char *goal = (char*)NULL;
     char *file_name = (char*)NULL;
@@ -414,13 +440,16 @@ int main(int argc, char* argv[]){
     strcpy(goal, argv[1]);
     strcpy(file_name, argv[2]);
 
-    X = file_to_matrix(file_name);
+    int d = get_d_size(file_name);
+    int N = get_N_size(file_name);
+
+    X = file_to_matrix_X(file_name, N, d);
     if (X == NULL) {
       printf("An Error Has Occurred");
       return 1;
     }
-    double** A = sym(X, 5, 3);
-    double** D = ddg(A, 5, 3);
-    double** W = norm(A, D, 5, 3);
-    print_output(W, 5, 5);
+
+    run_command(X, goal, N, d);
+    free(goal);
+    free(file_name);
 }
