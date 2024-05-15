@@ -81,12 +81,19 @@ static PyObject* sym(PyObject *self, PyObject *args){
 }
 
 static PyObject* ddg(PyObject *self, PyObject *args){
-    double** X;
+    double **X, **D;
+    PyObject *X_obj;
     int N, d;
-    if(!PyArg_ParseTuple(args, "oii", &X, &N, &d)){
-        return NULL;
+    if(!PyArg_ParseTuple(args, "Oii", &X_obj, &N, &d)){
+         return NULL;
     }
-    return Py_BuildValue("O", ddg_c(X, N, d));
+    X = parse_matrix(X_obj, N, d);
+    if(X == NULL){
+      return NULL;
+    }
+    D =  ddg_c(X, N, d);
+    free_array_of_pointers(X, N, N);
+    return convert_to_python_list(D, N, N);
 }
 
 static PyObject* norm(PyObject *self, PyObject *args){
