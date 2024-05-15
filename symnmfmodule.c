@@ -97,12 +97,19 @@ static PyObject* ddg(PyObject *self, PyObject *args){
 }
 
 static PyObject* norm(PyObject *self, PyObject *args){
-    double** X;
+    double **X, **W;
+    PyObject *X_obj;
     int N, d;
-    if(!PyArg_ParseTuple(args, "oii", &X, &N, &d)){
-        return NULL;
+    if(!PyArg_ParseTuple(args, "Oii", &X_obj, &N, &d)){
+         return NULL;
     }
-    return Py_BuildValue("O", norm_c(X, N, d));
+    X = parse_matrix(X_obj, N, d);
+    if(X == NULL){
+      return NULL;
+    }
+    W = norm_c(X, N, d);
+    free_array_of_pointers(X, N, N);
+    return convert_to_python_list(W, N, N);
 }
 
 static PyMethodDef symnmfmodMethods[] = {
