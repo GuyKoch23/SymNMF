@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#define eps 1e-4
+#define max_iter 300
 
 size_t getline(char **lineptr, size_t *n, FILE *stream)
     {
@@ -336,7 +338,7 @@ double** multiple_matrixes_cust(double** A, double** B, int rowA, int rowB, int 
     return AB;
 }
 
-double** symnmf_c(double** H, double** W, double eps, int max_iter, int N, int K){
+double** symnmf_c(double** H, double** W, int N, int K){
     int iter_count = 0;
     int convergance_rate = eps+1;
     int trace = 0;

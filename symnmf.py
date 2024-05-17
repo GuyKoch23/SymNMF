@@ -35,7 +35,7 @@ def main(K, goal, file_name):
         W = symnmf.norm(X, N, d)
         w_avg = get_mat_avg(W, N, N)
         H = initialize_H(N, K, w_avg)
-        H = symnmf.symnmf(H, W, N, d)
+        H = symnmf.symnmf(W, H, N, d, K)
         print_result_matrix(H, N, K)
     elif(goal == "sym"):
         A = symnmf.sym(X, N, d)

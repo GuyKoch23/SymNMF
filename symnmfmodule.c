@@ -112,6 +112,27 @@ static PyObject* norm(PyObject *self, PyObject *args){
     return convert_to_python_list(W, N, N);
 }
 
+static PyObject* symnmf(PyObject *self, PyObject *args){
+    double **W, **H, **H_new;
+    PyObject *W_obj, *H_obj;
+    int N, d, K;
+    if(!PyArg_ParseTuple(args, "OOiii", &W_obj, &H_obj, &N, &d, &K)){
+         return NULL;
+    }
+    W = parse_matrix(W_obj, N, N);
+    if(W == NULL){
+      return NULL;
+    }
+    H = parse_matrix(H_obj, N, K);
+    if(H == NULL){
+      return NULL;
+    }
+    H_new = symnmf_c(H, W, N, K);
+    free_array_of_pointers(W, N, N);
+    free_array_of_pointers(H, N, K);
+    return convert_to_python_list(H_new, N, K);
+}
+
 static PyMethodDef symnmfmodMethods[] = {
     {
       "sym",
@@ -132,6 +153,14 @@ static PyMethodDef symnmfmodMethods[] = {
     {
       "norm",
       (PyCFunction) norm,
+      METH_VARARGS,
+      PyDoc_STR(
+        "Perform some operation using norm algorithm."
+      )
+    },
+    {
+      "symnmf",
+      (PyCFunction) symnmf,
       METH_VARARGS,
       PyDoc_STR(
         "Perform some operation using norm algorithm."
