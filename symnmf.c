@@ -300,17 +300,17 @@ double** norm_c(double** X, int N, int d){
 }
 
 double** transpose_matrix_cust(double** A, int row, int col){
-    double** At = (double**)calloc(row,sizeof(double*));
+    double** At = (double**)calloc(col,sizeof(double*));
     int i, j;
     if(At == NULL){
         return NULL;
     }
-    for (i = 0; i < row; i++) {
+    for (i = 0; i < col; i++) {
         At[i] = (double*)calloc(row,sizeof(double));
         if(At[i] == NULL){
             return NULL;
         }
-        for (j = 0; j < col; j++){
+        for (j = 0; j < row; j++){
             At[i][j] = A[j][i];
         }
     }
@@ -338,10 +338,11 @@ double** multiple_matrixes_cust(double** A, double** B, int rowA, int rowB, int 
     return AB;
 }
 
-double** symnmf_c(double** H, double** W, int N, int K){
+double** symnmf_c(double** W, double** H, int N, int K){
     int iter_count = 0;
-    int convergance_rate = eps+1;
-    int trace = 0;
+    double convergance_rate = 1;
+    double trace = 0;
+    double coef = 0;
     double** H_new = NULL;
     double** H_Diff = NULL;
     double** H_Diff_T = NULL;
@@ -351,22 +352,24 @@ double** symnmf_c(double** H, double** W, int N, int K){
     double** C = NULL;
     int i,j;
     while(iter_count < max_iter && convergance_rate >= eps){
-        WHt = multiple_matrixes_cust(W, H, N, K, N);
+        WHt = multiple_matrixes_cust(W, H, N, N, K);
         HT = transpose_matrix_cust(H, N, K);
         C = multiple_matrixes_cust(H, HT, N, K, N);
+        C = multiple_matrixes_cust(C, H, N, N, K);
         trace = 0;
+        coef = 0;
         H_new = (double**)calloc(N, sizeof(double*));
         if(H_new == NULL){
             return NULL;
         }
-        C = multiple_matrixes_cust(C, H, N, N, K);
         for(i = 0; i < N; i++){
             H_new[i] = (double*)calloc(K, sizeof(double));
             if(H_new[i] == NULL){
                 return NULL;
             }
             for(j = 0; j < K; j++){
-                H_new[i][j] = H[i][j]*((1-0.5)+0.5*(WHt[i][j]/C[i][j]));
+                coef = 0.5+0.5*(WHt[i][j]/C[i][j]);
+                H_new[i][j] = H[i][j]*coef;
             }
         }
         H_Diff = (double**)calloc(N, sizeof(double*));
@@ -374,7 +377,7 @@ double** symnmf_c(double** H, double** W, int N, int K){
             return NULL;
         }
         for(i = 0; i < N; i++){
-            H_Diff[i] = (double*)calloc(N, sizeof(double*));
+            H_Diff[i] = (double*)calloc(K, sizeof(double));
             if(H_Diff[i] == NULL){
                 return NULL;
             }
@@ -390,13 +393,13 @@ double** symnmf_c(double** H, double** W, int N, int K){
         convergance_rate = trace;
         iter_count++;
         if(iter_count > 1){
-                free_array_of_pointers(H, K);
+            free_array_of_pointers(H, K);
         }
         free_array_of_pointers(WHt, N);
         free_array_of_pointers(C, N);
-        free_array_of_pointers(H_Diff, K);
-        free_array_of_pointers(HT, N);
-        free_array_of_pointers(H_Diff_T, N);
+        free_array_of_pointers(H_Diff, N);
+        free_array_of_pointers(HT, K);
+        free_array_of_pointers(H_Diff_T, K);
         free_array_of_pointers(E, K);
         H = H_new;
     }

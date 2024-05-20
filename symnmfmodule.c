@@ -127,7 +127,7 @@ static PyObject* symnmf(PyObject *self, PyObject *args){
     if(H == NULL){
       return NULL;
     }
-    H_new = symnmf_c(H, W, N, K);
+    H_new = symnmf_c(W, H, N, K);
     free_array_of_pointers(W, N, N);
     free_array_of_pointers(H, N, K);
     return convert_to_python_list(H_new, N, K);
