@@ -76,7 +76,7 @@ static PyObject* sym(PyObject *self, PyObject *args){
       return NULL;
     }
     A =  sym_c(X, N, d);
-    free_array_of_pointers(X, N, N);
+    free_array_of_pointers(X, N);
     return convert_to_python_list(A, N, N);
 }
 
@@ -92,7 +92,7 @@ static PyObject* ddg(PyObject *self, PyObject *args){
       return NULL;
     }
     D =  ddg_c(X, N, d);
-    free_array_of_pointers(X, N, N);
+    free_array_of_pointers(X, N);
     return convert_to_python_list(D, N, N);
 }
 
@@ -108,7 +108,7 @@ static PyObject* norm(PyObject *self, PyObject *args){
       return NULL;
     }
     W = norm_c(X, N, d);
-    free_array_of_pointers(X, N, N);
+    free_array_of_pointers(X, N);
     return convert_to_python_list(W, N, N);
 }
 
@@ -128,8 +128,8 @@ static PyObject* symnmf(PyObject *self, PyObject *args){
       return NULL;
     }
     H_new = symnmf_c(W, H, N, K);
-    free_array_of_pointers(W, N, N);
-    free_array_of_pointers(H, N, K);
+    free_array_of_pointers(W, N);
+    free_array_of_pointers(H, N);
     return convert_to_python_list(H_new, N, K);
 }
 

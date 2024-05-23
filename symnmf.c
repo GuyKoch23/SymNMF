@@ -317,7 +317,7 @@ double** transpose_matrix_cust(double** A, int row, int col){
     return At;
 }
 
-double** multiple_matrixes_cust(double** A, double** B, int rowA, int rowB, int colB){
+double** multiply_matrixes_cust(double** A, double** B, int rowA, int rowB, int colB){
     double** AB = (double**)calloc(rowA,sizeof(double*));
     int i, j, k;
     if(AB == NULL){
@@ -352,10 +352,10 @@ double** symnmf_c(double** W, double** H, int N, int K){
     double** C = NULL;
     int i,j;
     while(iter_count < max_iter && convergance_rate >= eps){
-        WHt = multiple_matrixes_cust(W, H, N, N, K);
+        WHt = multiply_matrixes_cust(W, H, N, N, K);
         HT = transpose_matrix_cust(H, N, K);
-        C = multiple_matrixes_cust(H, HT, N, K, N);
-        C = multiple_matrixes_cust(C, H, N, N, K);
+        C = multiply_matrixes_cust(H, HT, N, K, N);
+        C = multiply_matrixes_cust(C, H, N, N, K);
         trace = 0;
         coef = 0;
         H_new = (double**)calloc(N, sizeof(double*));
@@ -386,7 +386,7 @@ double** symnmf_c(double** W, double** H, int N, int K){
             }
         }
         H_Diff_T = transpose_matrix_cust(H_Diff, N, K);
-        E = multiple_matrixes_cust(H_Diff_T, H_Diff, K, N, K);
+        E = multiply_matrixes_cust(H_Diff_T, H_Diff, K, N, K);
         for(i = 0; i < K; i++){
             trace += E[i][i];
         }
