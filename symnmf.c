@@ -265,17 +265,13 @@ double** ddg_c(double** X, int N, int d){
     return D;
 }
 
-double** diag_pow_minus_half(double** mat, int N){
+double** get_diag_pow_minus_half(double** mat, int N){
     int i;
-    double** min_half_diag = (double**)calloc(N,sizeof(double*));
+    double** min_half_diag = allocate_matrix(N, N);
     if(min_half_diag == NULL){
         return NULL;
     }
     for(i = 0; i < N; i++){
-        min_half_diag[i] = (double*)calloc(N,sizeof(double));
-        if(min_half_diag[i] == NULL){
-            return NULL;
-        }
         min_half_diag[i][i] = pow(mat[i][i], -0.5);
     }
     return min_half_diag;
@@ -285,20 +281,28 @@ double** norm_c(double** X, int N, int d){
     int i, j;
     double **A, **D, **D_min_half, **W;
     A = sym_c(X, N, d);
-    D = ddg_c(X, N, d);
-    if(A == NULL || D == NULL){
+    if(A == NULL){
         return NULL;
     }
-    D_min_half = diag_pow_minus_half(D, N);
-    W = (double**)calloc(N,sizeof(double*));
+    D = ddg_c(X, N, d);
+    if(D == NULL){
+        free_array_of_pointers(A, N);
+        return NULL;
+    }
+    D_min_half = get_diag_pow_minus_half(D, N);
+    if(D_min_half == NULL){
+        free_array_of_pointers(A, N);
+        free_array_of_pointers(D, N);
+        return NULL;
+    }
+    W = allocate_matrix(N, N);
     if(W == NULL){
+        free_array_of_pointers(A, N);
+        free_array_of_pointers(D, N);
+        free_array_of_pointers(D_min_half, N);
         return NULL;
     }
     for(i = 0; i < N; i++){
-        W[i] = (double*)calloc(N,sizeof(double));
-        if(W[i] == NULL){
-            return NULL;
-        }
         for(j = 0; j < N; j++){
             W[i][j] = D_min_half[i][i]*A[i][j];
         }
@@ -308,6 +312,7 @@ double** norm_c(double** X, int N, int d){
             W[i][j] = W[i][j]*D_min_half[j][j];
         }
     }
+    free_array_of_pointers(D_min_half, N);
     free_array_of_pointers(D, N);
     free_array_of_pointers(A, N);
     return W;
