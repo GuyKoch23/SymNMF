@@ -370,42 +370,73 @@ double** symnmf_c(double** W, double** H, int N, int K){
         C = multiply_matrixes_cust(C, H, N, N, K);
         trace = 0;
         coef = 0;
-        H_new = (double**)calloc(N, sizeof(double*));
+
+        H_new = allocate_matrix(N, K);
         if(H_new == NULL){
+            if(iter_count > 1){
+                free_array_of_pointers(H, N);
+            }
+            free_array_of_pointers(WHt, N);
+            free_array_of_pointers(HT, K);
+            free_array_of_pointers(C, N);
             return NULL;
         }
         for(i = 0; i < N; i++){
-            H_new[i] = (double*)calloc(K, sizeof(double));
-            if(H_new[i] == NULL){
-                return NULL;
-            }
             for(j = 0; j < K; j++){
                 coef = 0.5+0.5*(WHt[i][j]/C[i][j]);
                 H_new[i][j] = H[i][j]*coef;
             }
         }
-        H_Diff = (double**)calloc(N, sizeof(double*));
+
+        H_Diff = allocate_matrix(N, K);
         if(H_Diff == NULL){
+            if(iter_count > 1){
+                free_array_of_pointers(H, N);
+            }
+            free_array_of_pointers(WHt, N);
+            free_array_of_pointers(HT, K);
+            free_array_of_pointers(C, N);
+            free_array_of_pointers(H_new, N);
             return NULL;
         }
         for(i = 0; i < N; i++){
-            H_Diff[i] = (double*)calloc(K, sizeof(double));
-            if(H_Diff[i] == NULL){
-                return NULL;
-            }
             for(j = 0; j < K; j++){
                 H_Diff[i][j] = H_new[i][j] - H[i][j];
             }
         }
+
         H_Diff_T = transpose_matrix_cust(H_Diff, N, K);
+        if(H_Diff_T == NULL){
+            if(iter_count > 1){
+                free_array_of_pointers(H, N);
+            }
+            free_array_of_pointers(WHt, N);
+            free_array_of_pointers(HT, K);
+            free_array_of_pointers(C, N);
+            free_array_of_pointers(H_new, N);
+            free_array_of_pointers(H_Diff, N);
+            return NULL;
+        }
         E = multiply_matrixes_cust(H_Diff_T, H_Diff, K, N, K);
+        if(E == NULL){
+            if(iter_count > 1){
+                free_array_of_pointers(H, N);
+            }
+            free_array_of_pointers(WHt, N);
+            free_array_of_pointers(HT, K);
+            free_array_of_pointers(C, N);
+            free_array_of_pointers(H_new, N);
+            free_array_of_pointers(H_Diff, N);
+            free_array_of_pointers(H_Diff_T, K);
+            return NULL;
+        }
         for(i = 0; i < K; i++){
             trace += E[i][i];
         }
         convergance_rate = trace;
         iter_count++;
         if(iter_count > 1){
-            free_array_of_pointers(H, K);
+            free_array_of_pointers(H, N);
         }
         free_array_of_pointers(WHt, N);
         free_array_of_pointers(C, N);
