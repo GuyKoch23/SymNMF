@@ -103,20 +103,20 @@ int count_commas_in_string(char* str){
     return count;
 }
 
-int get_d_size(char* file_name){
+int get_number_of_elements_in_file_row(char* file_name){
     FILE *f;
     size_t len = 0;
     char* line = NULL;
-    int d;
+    int num_of_commas = 0;
     f = fopen(file_name, "r");
     if(f == NULL){
         return -1;
     }
     getline(&line, &len, f);
-    d = 1 + count_commas_in_string(line);
+    num_of_commas = 1 + count_commas_in_string(line);
     fclose(f);
     free(line);
-    return d;
+    return num_of_commas;
 }
 
 int get_N_size(char* file_name){
@@ -134,7 +134,7 @@ int get_N_size(char* file_name){
     }
     fclose(f);
     free(line);
-    return N;
+    return N-1;
 
 }
 
@@ -458,7 +458,7 @@ int main(int argc, char* argv[]){
     strcpy(goal, argv[1]);
     strcpy(file_name, argv[2]);
 
-    d = get_d_size(file_name);
+    d = get_number_of_elements_in_file_row(file_name);
     N = get_N_size(file_name);
 
     run_command(goal, file_name, N, d);
