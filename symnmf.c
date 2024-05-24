@@ -139,7 +139,7 @@ int get_number_of_lines_in_file(char* file_name){
     return N-1;
 }
 
-double** file_to_matrix_X(char* file_name, int N, int d){
+double** read_file_to_matrix_X(char* file_name, int N, int d){
     double **X = NULL;
     FILE *f;
     size_t len = 0;
@@ -149,7 +149,6 @@ double** file_to_matrix_X(char* file_name, int N, int d){
     int d_counter = 0;
     int line_count = 0;
     X = (double**)malloc(N*sizeof(double *));
-
     if(X == NULL){
         return NULL;
     }
@@ -406,7 +405,7 @@ double** symnmf_c(double** W, double** H, int N, int K){
 }
 
 int run_command(char* goal, char* file_name, int N, int d){
-    double** X = file_to_matrix_X(file_name, N, d);
+    double** X = read_file_to_matrix_X(file_name, N, d);
     if(X == NULL){
         return 1;
     }
