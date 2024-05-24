@@ -334,18 +334,14 @@ double** transpose_matrix_cust(double** A, int rows, int cols){
 }
 
 double** multiply_matrixes_cust(double** A, double** B, int rowA, int rowB, int colB){
-    double** AB = (double**)calloc(rowA,sizeof(double*));
+    double** AB = NULL;
     int i, j, k;
+    AB = allocate_matrix(rowA, colB);
     if(AB == NULL){
         return NULL;
     }
     for (i = 0; i < rowA; i++) {
-        AB[i] = (double*)calloc(colB,sizeof(double));
-        if(AB[i] == NULL){
-            return NULL;
-        }
         for (j = 0; j < colB; j++) {
-            AB[i][j] = 0;
             for (k = 0; k < rowB; k++) {
                 AB[i][j] += A[i][k] * B[k][j];
             }
