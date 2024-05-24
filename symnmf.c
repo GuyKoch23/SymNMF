@@ -92,7 +92,7 @@ void print_matrix(double** mat, int rows, int cols) {
   }
 }
 
-int commas_in_str(char* str){
+int count_commas_in_string(char* str){
     int count = 0;
     while(*str != '\0'){
         if(*str == ','){
@@ -113,7 +113,7 @@ int get_d_size(char* file_name){
         return -1;
     }
     getline(&line, &len, f);
-    d = 1 + commas_in_str(line);
+    d = 1 + count_commas_in_string(line);
     fclose(f);
     free(line);
     return d;
