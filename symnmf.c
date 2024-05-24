@@ -460,6 +460,9 @@ int main(int argc, char* argv[]){
     strcpy(file_name, argv[2]);
 
     d = get_number_of_elements_in_file_row(file_name);
+    if(d == -1){
+        return 0;
+    }
     N = get_number_of_lines_in_file(file_name);
 
     run_command(goal, file_name, N, d);
