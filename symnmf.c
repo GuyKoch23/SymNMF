@@ -79,13 +79,12 @@ void free_array_of_pointers(double** arr, int length) {
   free(arr);
 }
 
-void print_output(double** mat, int N, int d) {
+void print_matrix(double** mat, int rows, int cols) {
   int i, j;
-
-  for (i=0; i<N; i++) {
-    for (j=0; j<d; j++) {
+  for (i=0; i<rows; i++) {
+    for (j=0; j<cols; j++) {
       printf("%.4f",mat[i][j]);
-      if (j != d-1)
+      if (j != cols-1)
         printf(",");
       else
         printf("\n");
@@ -416,7 +415,7 @@ int run_command(char* goal, char* file_name, int N, int d){
         if(A == NULL){
             return 1;
         }
-        print_output(A, N, N);
+        print_matrix(A, N, N);
         free_array_of_pointers(A, N);
     }
     else if (strcmp(goal,"ddg") == 0)
@@ -425,7 +424,7 @@ int run_command(char* goal, char* file_name, int N, int d){
         if(D == NULL){
             return 1;
         }
-        print_output(D, N, N);
+        print_matrix(D, N, N);
         free_array_of_pointers(D, N);
     }
     else if (strcmp(goal,"norm") == 0)
@@ -434,7 +433,7 @@ int run_command(char* goal, char* file_name, int N, int d){
         if(W == NULL){
             return 1;
         }
-        print_output(W, N, N);
+        print_matrix(W, N, N);
         free_array_of_pointers(W, N);
     }
     free_array_of_pointers(X, N);
