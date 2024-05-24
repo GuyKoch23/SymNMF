@@ -77,6 +77,9 @@ static PyObject* sym(PyObject *self, PyObject *args){
     }
     A =  sym_c(X, N, d);
     free_array_of_pointers(X, N);
+    if(A == NULL){
+      return NULL;
+    }
     return convert_to_python_list(A, N, N);
 }
 

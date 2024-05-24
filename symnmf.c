@@ -188,29 +188,45 @@ double** read_file_to_matrix_X(char* file_name, int N, int d){
     return X;
 }
 
+double** allocate_matrix(int rows, int cols){
+    int i;
+    double** mat = NULL;
+    mat = (double**)calloc(rows, sizeof(double*));
+    if(mat == NULL){
+        return NULL;
+    }
+    for(i = 0 ; i < rows; i++){
+        mat[i] = (double*)calloc(cols, sizeof(double));
+        if(mat[i] == NULL){
+            free_array_of_pointers(mat, i);
+            return NULL;
+        }   
+    }
+    return mat;
+}
+
+double calculate_euclidean_distance(double** mat, int row, int col, int d){
+    double sum = 0;
+    int k;
+    for(k = 0; k < d; k++){
+        sum += pow((mat[row][k] - mat[col][k]),2);
+    }
+    return sum;
+}
+
 double** sym_c(double** X, int N, int d){
     int i, j, k;
     double** A = NULL;
     double current_sum = 0;
     double current_exp = 0;
-    A = (double**)malloc(N*sizeof(double*));
+    A = allocate_matrix(N, N);
     if(A == NULL){
         return NULL;
     }
-    for(i = 0 ; i < N; i++){
-        A[i] = (double*)malloc(N*sizeof(double));
-        if(A[i] == NULL){
-            return NULL;
-        }   
+    for(i = 0; i < N; i++){
         for(j = 0; j < N; j++){
-            if(i == j){
-                A[i][j] = 0;
-            }
-            else{
-                current_sum = 0;
-                for(k = 0; k < d; k++){
-                    current_sum += pow((X[i][k] - X[j][k]),2);
-                }
+            if(i != j){
+                current_sum = calculate_euclidean_distance(X, i, j, d);
                 current_exp = exp((-0.5)*current_sum);
                 A[i][j] = current_exp;
             }
