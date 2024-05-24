@@ -318,18 +318,15 @@ double** norm_c(double** X, int N, int d){
     return W;
 }
 
-double** transpose_matrix_cust(double** A, int row, int col){
-    double** At = (double**)calloc(col,sizeof(double*));
+double** transpose_matrix_cust(double** A, int rows, int cols){
+    double** At = NULL;
     int i, j;
+    At = allocate_matrix(cols, rows);
     if(At == NULL){
         return NULL;
     }
-    for (i = 0; i < col; i++) {
-        At[i] = (double*)calloc(row,sizeof(double));
-        if(At[i] == NULL){
-            return NULL;
-        }
-        for (j = 0; j < row; j++){
+    for(i=0; i < cols; i++){
+        for(j=0; j<rows; j++){
             At[i][j] = A[j][i];
         }
     }
