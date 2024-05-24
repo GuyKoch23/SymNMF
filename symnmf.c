@@ -119,7 +119,7 @@ int get_number_of_elements_in_file_row(char* file_name){
     return num_of_commas;
 }
 
-int get_N_size(char* file_name){
+int get_number_of_lines_in_file(char* file_name){
     FILE *f;
     size_t len = 0;
     char* line = NULL;
@@ -459,7 +459,7 @@ int main(int argc, char* argv[]){
     strcpy(file_name, argv[2]);
 
     d = get_number_of_elements_in_file_row(file_name);
-    N = get_N_size(file_name);
+    N = get_number_of_lines_in_file(file_name);
 
     run_command(goal, file_name, N, d);
     free(goal);
