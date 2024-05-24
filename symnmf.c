@@ -137,7 +137,6 @@ int get_number_of_lines_in_file(char* file_name){
     fclose(f);
     free(line);
     return N-1;
-
 }
 
 double** file_to_matrix_X(char* file_name, int N, int d){
@@ -464,7 +463,9 @@ int main(int argc, char* argv[]){
         return 0;
     }
     N = get_number_of_lines_in_file(file_name);
-
+    if(N == -1){
+        return 0;
+    }
     run_command(goal, file_name, N, d);
     free(goal);
     free(file_name);
