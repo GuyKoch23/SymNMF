@@ -148,7 +148,7 @@ double** read_file_to_matrix_X(char* file_name, int N, int d){
     char *end_iterator = NULL;
     int d_counter = 0;
     int line_count = 0;
-    X = (double**)malloc(N*sizeof(double *));
+    X = (double**)malloc(N*sizeof(double*));
     if(X == NULL){
         return NULL;
     }
@@ -156,16 +156,13 @@ double** read_file_to_matrix_X(char* file_name, int N, int d){
     if(f == NULL){
         return NULL;
     }
-
     while ((int)getline(&line, &len, f) != -1 && line_count < N){
         X[line_count] = (double*)malloc(d*sizeof(double));
-        
         if (X[line_count] == NULL) {
             free_array_of_pointers(X, line_count);
             free(line);
             return NULL;
         }
-
         start_iterator = line;
         end_iterator = line;
         d_counter = 0;
