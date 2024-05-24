@@ -235,6 +235,15 @@ double** sym_c(double** X, int N, int d){
     return A;
 }
 
+double calculate_vertice_degree(double** mat, int row, int cols){
+        int j;
+        double current_sum = 0;
+        for(j = 0; j <cols; j++){
+            current_sum += mat[row][j];
+        }
+        return current_sum;
+}
+
 double** ddg_c(double** X, int N, int d){
     int i, j;
     double current_sum;
@@ -243,19 +252,13 @@ double** ddg_c(double** X, int N, int d){
     if(A == NULL){
         return NULL;
     }
-    D = (double**)calloc(N,sizeof(double*));
+    D = allocate_matrix(N, N);
     if(D == NULL){
+        free_array_of_pointers(A, N);
         return NULL;
     }
     for(i = 0; i < N; i++){
-        D[i] = (double*)calloc(N,sizeof(double));
-        if(D[i] == NULL){
-            return NULL;
-        }
-        current_sum = 0;
-        for(j = 0; j <N; j++){
-            current_sum += A[i][j];
-        }
+        current_sum = calculate_vertice_degree(A, i, N);
         D[i][i] = current_sum;
     }
     free_array_of_pointers(A, N);
