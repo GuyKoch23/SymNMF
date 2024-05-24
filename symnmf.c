@@ -72,11 +72,13 @@ size_t getline(char **lineptr, size_t *n, FILE *stream)
     }
 
 void free_array_of_pointers(double** arr, int length) {
-  int i;
-  for (i=0; i<length; i++) {
-    free(arr[i]);
-  }
-  free(arr);
+  if(arr != NULL){
+    int i;
+    for (i=0; i<length; i++) {
+        free(arr[i]);
+    }
+    free(arr);
+    }
 }
 
 void print_matrix(double** mat, int rows, int cols) {
@@ -190,7 +192,6 @@ double** file_to_matrix_X(char* file_name, int N, int d){
     fclose(f);
     return X;
 }
-
 
 double** sym_c(double** X, int N, int d){
     int i, j, k;
