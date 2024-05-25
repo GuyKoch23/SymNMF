@@ -139,55 +139,6 @@ int get_number_of_lines_in_file(char* file_name){
     return N-1;
 }
 
-double** read_file_to_matrix_X(char* file_name, int N, int d){
-    double **X = NULL;
-    FILE *f;
-    size_t len = 0;
-    char* line = NULL;
-    char *start_iterator = NULL;
-    char *end_iterator = NULL;
-    int d_counter = 0;
-    int line_count = 0;
-    X = (double**)malloc(N*sizeof(double*));
-    if(X == NULL){
-        return NULL;
-    }
-    f = fopen(file_name, "r");
-    if(f == NULL){
-        return NULL;
-    }
-    while ((int)getline(&line, &len, f) != -1 && line_count < N){
-        X[line_count] = (double*)malloc(d*sizeof(double));
-        if (X[line_count] == NULL) {
-            free_array_of_pointers(X, line_count);
-            free(line);
-            return NULL;
-        }
-        start_iterator = line;
-        end_iterator = line;
-        d_counter = 0;
-        while(*end_iterator != '\n' && *end_iterator != '\0') {
-            while(*end_iterator != ',' && *end_iterator != '\n' && *end_iterator != '\0') {
-                end_iterator++;
-            }
-            X[line_count][d_counter] = strtod(start_iterator, NULL);
-            if (*end_iterator != '\n' && *end_iterator != '\0') {
-                end_iterator++;
-                start_iterator = end_iterator;
-            }
-            d_counter++;
-        }
-      line_count++;
-    }
-    if (X == NULL) {
-      printf("An Error Has Occurred");
-      return NULL;
-    }
-    free(line);
-    fclose(f);
-    return X;
-}
-
 double** allocate_matrix(int rows, int cols){
     int i;
     double** mat = NULL;
@@ -203,6 +154,43 @@ double** allocate_matrix(int rows, int cols){
         }   
     }
     return mat;
+}
+
+double** read_file_to_matrix_X(char* file_name, int N, int d){
+    int d_counter, line_count = 0;
+    size_t len = 0;
+    char *start_iterator, *end_iterator, *line = NULL;
+    double **X = NULL;
+    FILE *f;
+
+    X = allocate_matrix(N, d);
+    if(X == NULL){
+        return NULL;
+    }
+    f = fopen(file_name, "r");
+    if(f == NULL){
+        return NULL;
+    }
+    while ((int)getline(&line, &len, f) != -1 && line_count < N){
+        start_iterator = line;
+        end_iterator = line;
+        d_counter = 0;
+        while(*end_iterator != '\n' && *end_iterator != '\0') {
+            while(*end_iterator != ',' && *end_iterator != '\n' && *end_iterator != '\0') {
+                end_iterator++;
+            }
+            X[line_count][d_counter] = strtod(start_iterator, NULL);
+            if (*end_iterator != '\n' && *end_iterator != '\0') {
+                end_iterator++;
+                start_iterator = end_iterator;
+            }
+            d_counter++;
+        }
+        line_count++;
+    }
+    free(line);
+    fclose(f);
+    return X;
 }
 
 double calculate_euclidean_distance(double** mat, int row, int col, int d){
