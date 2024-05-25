@@ -13,9 +13,6 @@ def initialize_H(N, K, w_avg):
     mat = [[np.random.uniform(0, 2*math.sqrt(w_avg/K)) for _ in range(K)] for _ in range(N)]
     return mat
 
-def get_mat_avg(mat):
-    return np.mean(mat)
-
 def print_result_matrix(matrix):
     print('\n'.join(['\t'.join([str(round(cell,4)).ljust(6,'0') for cell in row]) for row in matrix]))
 
@@ -27,7 +24,7 @@ def main(K, goal, file_name):
     d = len(X[0])
     if(goal == "symnmf"):
         W = symnmf.norm(X, N, d)
-        w_avg = get_mat_avg(W)
+        w_avg = np.mean(W)
         H = initialize_H(N, K, w_avg)
         H = symnmf.symnmf(W, H, N, d, K)
         print_result_matrix(H)

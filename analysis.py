@@ -6,18 +6,9 @@ import symnmf
 import kmeans
 from sklearn.metrics import silhouette_score
 
-def initialize_H(N, K, w_avg):
-    mat = [[np.random.uniform(0, 2*math.sqrt(w_avg/K)) for _ in range(K)] for _ in range(N)]
+def initialize_H(N, K, m):
+    mat = [[np.random.uniform(0, 2*math.sqrt(m/K)) for _ in range(K)] for _ in range(N)]
     return mat
-
-def get_mat_avg(mat, rows, cols):
-    sum = 0
-    cnt = 0
-    for i in range(rows):
-        for j in range(cols):
-            sum += mat[i][j]
-            cnt+=1
-    return sum / cnt
 
 def read_vectors(file_name):
     data = pd.read_csv(file_name, header=None)
@@ -44,22 +35,31 @@ def create_lable_array_kmeans(X, centroids, d):
         arr.append(np.argmin([kmeans.distance(x, c, d) for c in centroids]))
     return arr
 
+def analyse_lables(N, d, X, W, H):
+    H_symnmf = symnmf.symnmf(W, H, N, d, K)
+    Lables_arr_symnmf = create_lable_array_symnmf(H_symnmf)
+    H_kmeans = kmeans.kmeans_py(K, N, d, 300, file_name)
+    Lables_arr_kmeans = create_lable_array_kmeans(X, H_kmeans, d)
+    return Lables_arr_symnmf, Lables_arr_kmeans
+
+def print_silhouette_score(test_name, samples, Lables_arr):
+    print(test_name + ":", str(round(silhouette_score(samples, Lables_arr),4)).ljust(6,'0'))
+
+
 def main(K, file_name):
     np.random.seed(0)
     X = read_vectors(file_name)
     N = len(X)
     d = len(X[0])
     W = symnmf.norm(X, N, d)
-    w_avg = get_mat_avg(W, N, N)
-    H = initialize_H(N, K, w_avg)
-    H_symnmf = symnmf.symnmf(W, H, N, d, K)
-    L_symnmf = create_lable_array_symnmf(H_symnmf)
-    H_kmeans = kmeans.kmeans_py(K, N, d, 300, file_name)
-    L_kmeans = create_lable_array_kmeans(X, H_kmeans, d)
-    print("nmf:", str(round(silhouette_score(X, L_symnmf),4)).ljust(6,'0'))
-    print("kmeams:", str(round(silhouette_score(X, L_kmeans),4)).ljust(6,'0'))
+    m = np.mean(W)
+    H = initialize_H(N, K, m)
+    
+    Lables_arr_symnmf, Lables_arr_kmeans = analyse_lables(N, d, X, W, H)
 
-
+    print_silhouette_score("nmf", X, Lables_arr_symnmf)
+    print_silhouette_score("kmeams", X, Lables_arr_kmeans)
+    
 if __name__ == "__main__":
     try:
         K = int(sys.argv[1])
