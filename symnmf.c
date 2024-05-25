@@ -203,7 +203,7 @@ double calculate_euclidean_distance(double** mat, int row, int col, int d){
 }
 
 double** sym_c(double** X, int N, int d){
-    int i, j, k;
+    int i, j;
     double** A = NULL;
     double current_sum = 0;
     double current_exp = 0;
@@ -233,7 +233,7 @@ double calculate_vertice_degree(double** mat, int row, int cols){
 }
 
 double** ddg_c(double** X, int N, int d){
-    int i, j;
+    int i;
     double current_sum;
     double **A, **D;
     A = sym_c(X, N, d);
