@@ -70,15 +70,20 @@ static PyObject* sym(PyObject *self, PyObject *args){
     }
     X = parse_matrix(X_obj, N, d);
     if(X == NULL){
+      Py_DECREF(A_obj);
+      Py_DECREF(X_obj);
       return NULL;
     }
     A = sym_c(X, N, d);
     free_array_of_pointers(X, N);
     if(A == NULL){
+      Py_DECREF(A_obj);
+      Py_DECREF(X_obj);
       return NULL;
     }
     A_obj = convert_array_to_python_list(A, N, N);
     free_array_of_pointers(A, N);
+    Py_DECREF(X_obj);
     return A_obj;
 }
 
