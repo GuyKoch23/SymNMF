@@ -96,11 +96,13 @@ static PyObject* ddg(PyObject *self, PyObject *args){
     }
     X = parse_matrix(X_obj, N, d);
     if(X == NULL){
+      Py_DECREF(X_obj);
       return NULL;
     }
     D = ddg_c(X, N, d);
     free_array_of_pointers(X, N);
     if(D == NULL){
+      Py_DECREF(X_obj);
       return NULL;
     }
     D_obj = convert_array_to_python_list(D, N, N);
