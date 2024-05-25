@@ -473,9 +473,9 @@ int run_command(char* goal, char* file_name, int N, int d){
 }
 
 int main(int argc, char* argv[]){
+    int N, d, result;
     char* goal = NULL;
     char* file_name = NULL;
-    int N, d;
     if(argc != 3){
         return 1;
     }
@@ -492,14 +492,12 @@ int main(int argc, char* argv[]){
 
     d = get_number_of_elements_in_file_row(file_name);
     if(d == -1){
-        return 0;
+        return 1;
     }
     N = get_number_of_lines_in_file(file_name);
     if(N == -1){
-        return 0;
+        return 1;
     }
-    run_command(goal, file_name, N, d);
-    free(goal);
-    free(file_name);
-    return 0;
+    result = run_command(goal, file_name, N, d);
+    return result;
 }
