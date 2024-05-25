@@ -1,4 +1,3 @@
-#include "symnmf.c"
 
 double** sym_c(double** X, int N, int d);
 double** ddg_c(double** X, int N, int d);

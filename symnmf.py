@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import pandas as pd
 import math
-import symnmf
+import csymnmf
 
 def read_vectors(file_name):
     data = pd.read_csv(file_name, header=None)
@@ -23,19 +23,19 @@ def main(K, goal, file_name):
     N = len(X)
     d = len(X[0])
     if(goal == "symnmf"):
-        W = symnmf.norm(X, N, d)
+        W = csymnmf.norm(X, N, d)
         w_avg = np.mean(W)
         H = initialize_H(N, K, w_avg)
-        H = symnmf.symnmf(W, H, N, d, K)
+        H = csymnmf.symnmf(W, H, N, d, K)
         print_result_matrix(H)
     elif(goal == "sym"):
-        A = symnmf.sym(X, N, d)
+        A = csymnmf.sym(X, N, d)
         print_result_matrix(A)
     elif(goal == "ddg"):
-        D = symnmf.ddg(X, N, d)
+        D = csymnmf.ddg(X, N, d)
         print_result_matrix(D)
     elif(goal == "norm"):
-        W = symnmf.norm(X, N, d)
+        W = csymnmf.norm(X, N, d)
         print_result_matrix(W)
 
 if __name__ == "__main__":
