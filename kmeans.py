@@ -1,6 +1,4 @@
 from math import sqrt
-import sys
-import os
 eps = 0.001
 
 def distance(vector1, vector2, d):
