@@ -6,6 +6,7 @@
 #include <math.h>
 #define eps 1e-4
 #define max_iter 300
+#define beta 0.5
 
 size_t getline(char **lineptr, size_t *n, FILE *stream)
     {
@@ -371,7 +372,7 @@ double** symnmf_c(double** W, double** H, int N, int K){
         }
         for(i = 0; i < N; i++){
             for(j = 0; j < K; j++){
-                coef = 0.5+0.5*(WHt[i][j]/C[i][j]);
+                coef = (1-beta)+beta*(WHt[i][j]/C[i][j]);
                 H_new[i][j] = H[i][j]*coef;
             }
         }
