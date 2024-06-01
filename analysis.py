@@ -52,6 +52,7 @@ def main(K, file_name):
     print_silhouette_score("nmf", X, Lables_arr_symnmf)
     print_silhouette_score("kmeams", X, Lables_arr_kmeans)
 
+
 if __name__ == "__main__":
     try:
         K = int(sys.argv[1])

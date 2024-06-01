@@ -70,14 +70,12 @@ static PyObject* sym(PyObject *self, PyObject *args){
     }
     X = parse_matrix(X_obj, N, d);
     if(X == NULL){
-      Py_DECREF(A_obj);
       Py_DECREF(X_obj);
       return NULL;
     }
     A = sym_c(X, N, d);
     free_array_of_pointers(X, N);
     if(A == NULL){
-      Py_DECREF(A_obj);
       Py_DECREF(X_obj);
       return NULL;
     }
@@ -107,6 +105,7 @@ static PyObject* ddg(PyObject *self, PyObject *args){
     }
     D_obj = convert_array_to_python_list(D, N, N);
     free_array_of_pointers(D, N);
+    Py_DECREF(X_obj);
     return D_obj;
 }
 
@@ -119,15 +118,18 @@ static PyObject* norm(PyObject *self, PyObject *args){
     }
     X = parse_matrix(X_obj, N, d);
     if(X == NULL){
+      Py_DECREF(X_obj);
       return NULL;
     }
     W = norm_c(X, N, d);
     free_array_of_pointers(X, N);
     if(W == NULL){
+      Py_DECREF(X_obj);
       return NULL;
     }
     W_obj = convert_array_to_python_list(W, N, N);
     free_array_of_pointers(W, N);
+    Py_DECREF(X_obj);
     return W_obj;
 }
 
@@ -140,21 +142,29 @@ static PyObject* symnmf(PyObject *self, PyObject *args){
     }
     W = parse_matrix(W_obj, N, N);
     if(W == NULL){
+      Py_DECREF(W_obj);
+      Py_DECREF(H_obj);
       return NULL;
     }
     H = parse_matrix(H_obj, N, K);
     if(H == NULL){
       free_array_of_pointers(W, N);
+      Py_DECREF(W_obj);
+      Py_DECREF(H_obj);
       return NULL;
     }
     H_new = symnmf_c(W, H, N, K);
     free_array_of_pointers(W, N);
     free_array_of_pointers(H, N);
     if(H_new == NULL){
+      Py_DECREF(W_obj);
+      Py_DECREF(H_obj);
       return NULL;
     }
     H_new_obj = convert_array_to_python_list(H_new, N, K);
     free_array_of_pointers(H_new, N);
+    Py_DECREF(W_obj);
+    Py_DECREF(H_obj);
     return H_new_obj;
 }
 
