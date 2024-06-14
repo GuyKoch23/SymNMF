@@ -9,70 +9,6 @@
 #define beta 0.5
 #define ERROR_MESSAGE "An Error Has Occurred"
 
-size_t getline(char **lineptr, size_t *n, FILE *stream)
-    {
-        char *bufptr = NULL;
-        char *p = bufptr;
-        size_t size;
-        int c;
-    
-        if (lineptr == NULL)
-        {
-            return -1;
-        }
-        if (stream == NULL)
-        {
-            return -1;
-        }
-        if (n == NULL)
-        {
-            return -1;
-        }
-        bufptr = *lineptr;
-        size = *n;
-    
-        c = fgetc(stream);
-        if (c == EOF)
-        {
-            return -1;
-        }
-        if (bufptr == NULL)
-        {
-            bufptr = malloc(128);
-            if (bufptr == NULL)
-            {
-                return -1;
-            }
-            size = 128;
-        }
-        p = bufptr;
-        while (c != EOF)
-        {
-            if ((size_t)(p - bufptr) > (size - 1))
-            {
-                size = size + 128;
-                bufptr = realloc(bufptr, size);
-                if (bufptr == NULL)
-                {
-                    return -1;
-                }
-                p = bufptr + (size - 128);
-            }
-            *p++ = c;
-            if (c == '\n')
-            {
-                break;
-            }
-            c = fgetc(stream);
-        }
-    
-        *p++ = '\0';
-        *lineptr = bufptr;
-        *n = size;
-    
-        return p - bufptr - 1;
-    }
-
 /*
  * Frees array of pointers 
  * Parameters:
@@ -139,12 +75,13 @@ int get_number_of_elements_in_file_row(char* file_name){
     size_t len = 0;
     char* line = NULL;
     int num_of_commas = 0;
-    //ssize_t result;
     f = fopen(file_name, "r");
     if(f == NULL){
         return -1;
     }
-    getline(&line, &len, f);
+    if(getline(&line, &len, f) == -1 && !feof(f)){
+        return -1;
+    }
     num_of_commas = 1 + count_commas_in_string(line);
     fclose(f);
     free(line);
@@ -163,13 +100,14 @@ int get_number_of_lines_in_file(char* file_name){
     size_t len = 0;
     char* line = NULL;
     int N = 0;
-    //ssize_t result;
     f = fopen(file_name, "r");
     if(f == NULL){
         return -1;
     }
     while(!feof(f)){
-        getline(&line, &len, f);
+        if(getline(&line, &len, f) == -1 && !feof(f)){
+            return -1;
+        }
         N++;
     }
     fclose(f);
